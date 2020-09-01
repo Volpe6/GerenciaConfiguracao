@@ -20,24 +20,5 @@ Produto.init({
     timestamps: false
 });
 
-async function teste() {
-    try {
-        
-        await Produto.sync({ force: true }) // Isso cria a tabela, descartando-a primeiro se ela já existia
-    } catch (error) {
-        console.log('erro');
-    }
-    try {
-        await Produto.create({ descricao: 'teste', fabricante:'teste' });
-      }
-      catch(e) {
-        console.log('Catch an error: ', e)
-      }
-    para = 1;
-}
-
-// teste();
-
-// await Produto.sync({ force: true }) // Isso cria a tabela, descartando-a primeiro se ela já existia
 
 module.exports = Produto;

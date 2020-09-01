@@ -1,6 +1,7 @@
 const Produto  = require('../model/produto');
 
 const ControllerProduto = {
+    //retorna todos os registros da tabela
     async index(req, res) {
         const registros = await Produto.findAll();
         return res.status(200).json({
@@ -9,6 +10,7 @@ const ControllerProduto = {
             registros:registros
         });
     },
+    //procura um refistro pelo id
     async findById(req, res) {
         const { id } = req.params
         if(id === '') {
@@ -20,15 +22,9 @@ const ControllerProduto = {
         let registro = null;
         let mensagem = '';
         try {
-            registro = await Produto.findOne({ 
-                where: { 
-                    id: id 
-                } 
-            });
+            registro = await Produto.findOne({ where: { id: id } });
+            registro = (!(registro == null)) ? registro.dataValues : registro;
             mensagem = registro == null? 'Registro não encontrado' : 'registro recuperado com sucesso' 
-            if(!(registro == null)) {
-                registro = registro.dataValues;
-            }
         } catch (error) {
             return res.status(200).json({
                 result: 'erro',
@@ -41,12 +37,12 @@ const ControllerProduto = {
             registro: registro  
         });
     },
-    //salva e atualiza
+    //salva/atualiza
     async store(req, res) {
         const entidade = req.body;
         
         let model    = null;
-        let mensagem = '';
+        let mensagem = '';//mensagem a ser repassada ao front
         //tenta incluir/atualizar o registro
         try {
             if(entidade.id) {
@@ -56,8 +52,7 @@ const ControllerProduto = {
                 },{
                     where: {
                         id: entidade.id
-                    }
-                });
+                    }});
                 mensagem = 'Registro atualizado com sucesso';
             } else {
                 model = await Produto.create({ 
@@ -77,6 +72,7 @@ const ControllerProduto = {
             msg   : mensagem    
         });
     },
+    //remove um registro pelo id
     async remove(req, res) {
         const { id } = req.params;
         //verifica se existe o id
@@ -88,11 +84,7 @@ const ControllerProduto = {
         }
         //tenta remover o registro
         try {
-            await Produto.destroy({
-                where: {
-                  id: id
-                }
-            });
+            await Produto.destroy({ where: {id: id } });
         } catch (error) {
             return res.status(200).json({
                 result: 'erro',

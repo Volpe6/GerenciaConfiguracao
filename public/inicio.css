@@ -1,0 +1,77 @@
+@import url('base.css');
+
+body {
+    font-family: var(--estilo-fonte), sans-serif;
+    font-size: var(--tamanho-fonte);
+    font-weight: bold;
+    color: var(--cor-texto-base);
+    background: var(--cor-fundo-base);
+    padding: 3rem 0 4.5rem 0;
+}
+
+.cabecalho-inicial, .rodape-inicial {
+    user-select: none;
+    background: var(--cor-destaque-3);
+    color: var(--cor-texto-destaque);
+    text-align: center;
+    position: fixed;
+    right: 0;
+    left: 0;
+}
+
+.cabecalho-inicial {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 0.2rem solid var(--cor-destaque-4);
+    top: 0;
+    height: 3rem;
+}
+
+.cabecalho-inicial > h1 {
+    font-size: 2rem;
+    font-weight: bolder;
+    margin: 0;
+}
+
+.rodape-inicial {
+    border-top: 0.2rem solid var(--cor-destaque-4);
+    bottom: 0;
+    height: 4.5rem;
+}
+
+.rodape-inicial > p {
+    margin: 0;  
+}
+
+.navegacao {
+    background: var(--cor-destaque-2);
+    height: 2rem;
+}
+
+.navegacao > ul {
+    margin: 0;
+}
+
+.navegacao > ul > li {
+    display: flex;
+    align-items: center;
+    padding: 0 2em;
+    height: 100%;
+    width: 100%;
+    background: var(--cor-destaque-1);
+    color: var(--cor-link-base);
+    cursor: pointer;
+}
+
+.navegacao > ul > li:hover {
+    color: var(--cor-link-hover);
+    text-decoration: underline;
+}
+
+#base_pagina{
+    padding: 1rem;
+    min-height: calc(100vh - 9.5rem);
+    border: 0.25rem solid var(--cor-destaque-3);
+    border-bottom: none;
+}

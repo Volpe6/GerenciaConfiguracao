@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;700;900&display=swap');
+
+html {
+    --tamanho-fonte: 14px;
+    --estilo-fonte: Lato;
+
+    --cor-destaque-1: #5bba6fff;
+    --cor-destaque-2: #3fa34dff;
+    --cor-destaque-3: #2a9134ff;
+    --cor-destaque-4: #137547ff;
+    --cor-destaque-5: #054a29ff;
+
+    --cor-fundo-base:     #FFFFFF;
+    --cor-fundo-destaque: var(--emerald);
+
+    --cor-texto-base:     #000000;
+    --cor-texto-destaque: #FFFFFF;
+
+    --cor-link-base:  #FFFFFF;
+    --cor-link-hover: #CCCCCC;
+}
+
+a {
+    color: var(--cor-link-base)
+}
+
+a:hover {
+    color: var(--cor-link-hover)
+}

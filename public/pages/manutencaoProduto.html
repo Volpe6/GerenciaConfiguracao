@@ -1,0 +1,57 @@
+<div class="container">
+    <form action="produto" method="POST" id="formProduto" name="produto">
+        <div class="form-group">
+            <label for="descricaoProduto">Descrição:</label>
+            <textarea class="form-control" id="descricaoProduto" name="descricao" aria-describedby="descricaoProdutoAjuda" placeholder="Digite a descrição."></textarea>
+            <small id="descricaoProdutoAjuda" class="form-text text-muted">Informe uma descrição para o produto.</small>
+        </div>
+        <div class="form-group">
+            <label for="fabricanteProduto">Fabricante:</label>
+            <input type="text" class="form-control" id="fabricanteProduto" name="fabricante" aria-describedby="fabricanteProdutoAjuda" placeholder="Digite o Fabricante">
+            <small id="fabricanteProdutoAjuda" class="form-text text-muted">Informe o fabricante para o produto.</small>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+<div class="modal fade" id="modalStatus" tabindex="-1" role="dialog" aria-labelledby="modalStatusTitulo" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalStatusTitulo">Mensagem</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="modalStatusConteudo"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    (function(){
+        var oModal = $('#modalStatus').modal({
+            show: false
+        });
+        var oForm = $('#formProduto');
+        oForm.submit(function(e){
+            var formData = JSON.stringify($("#myForm").serializeArray());
+            e.preventDefault();
+            $.ajax({
+                url: '/produto',
+                type: 'post',
+                data: oForm.serialize(),
+                dataType: "json",
+                contentType : "application/json"
+            }).then(function(e){
+                console.log('ok', e);
+            },function(e){
+                $('#modalStatusTitulo', oModal).html('Erro!');
+                $('#modalStatusConteudo', oModal).html(e.responseText);
+                oModal.modal('show');
+            });
+            return false;
+        });
+    }());
+</script>

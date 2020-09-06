@@ -1,10 +1,11 @@
 <div class="container">
     <button id="botaoIncluirProdutos" class="btn btn-success">Novo</button>
-    <table id="dataTableListaProdutos" class="table table-striped table-bordered" style="width:100%; display: none;">
+    <table id="dataTableListaProdutos" class="tabela-dados tabela-dados-acoes table table-striped table-bordered" style="width:100%; display: none;">
         <thead>
             <tr>
                 <th>Descrição</th>
                 <th>Fabricante</th>
+                <th>Açoes</th>
             </tr>
         </thead>
         <tbody>
@@ -15,7 +16,13 @@
             ControlePagina.carregaPagina('manutencaoProduto.html');
         })
         oTabela = $('#dataTableListaProdutos');
-        ControlePagina.carregaRegistrosHtml('produto', ['descricao', 'fabricante'], $('>tbody', oTabela)).then(function(){
+        ControlePagina.carregaRegistrosHtml({
+                 request:    'produto'
+                ,chave:      ['id']
+                ,colunas:    ['descricao', 'fabricante']
+                ,alvo:       $('>tbody', oTabela)
+                ,manutencao: 'manutencaoProduto.html'
+        }).then(function(){
             oTabela.DataTable({
                 "paging": false
                 ,"info": false

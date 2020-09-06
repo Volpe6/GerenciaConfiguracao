@@ -6,6 +6,8 @@ const ControlePagina = (function(){
     var oModal;
     var modalTitulo;
     var modalConteudo;
+    var modalBotoes;
+    var sAtual;
 
     $(window).on('popstate', function(e){
         oContainer.empty();
@@ -16,10 +18,12 @@ const ControlePagina = (function(){
     }).on('load', function(){
         oContainer = $('#base_pagina');
         oModal = $('#modalStatus').modal({
-            show: false
+             show: false
+            ,backdrop: 'static'
         });
-        modalTitulo   = $('#modalStatusTitulo', oModal);
+        modalTitulo   = $('#modalStatusTitulo',   oModal);
         modalConteudo = $('#modalStatusConteudo', oModal);
+        modalBotoes   = $('#modalStatusBotoes',   oModal);
         $.get('//cdn.datatables.net/plug-ins/1.10.21/i18n/Portuguese-Brasil.json').then(function(oRes){
             ControlePagina.DATA_TABLES_L18N = oRes;
         })
@@ -46,6 +50,7 @@ const ControlePagina = (function(){
     function carregaPagina(sLink){
         oContainer.hide();
         $.get('/pages/' + sLink).then(function(sHtml){
+            sAtual = sLink;
             oContainer.html(sHtml);
             oContainer.show();
             window.history.pushState({ "html": sHtml }, "", '?p=' + sLink.replace(/.html$/, ''));
@@ -54,19 +59,67 @@ const ControlePagina = (function(){
         });
     }
 
+    function recarregaPagina(){
+        oContainer.hide();
+        $.get('/pages/' + sAtual).then(function(sHtml){
+            oContainer.html(sHtml);
+            oContainer.show();
+        }, function(){
+            carregaPagina('bemVindo.html');
+        });
+    }
+
+    function mostraModalNormal(sTitulo, sConteudo, fnOk, bDismiss = true){
+        modalTitulo.html(sTitulo);
+        modalConteudo.html(sConteudo);
+        $('.btn', modalBotoes).show().off('click');
+        $('.btn-primary', modalBotoes).on('click', function(){
+            if(bDismiss){
+                oModal.modal('hide');
+            }
+            if(fnOk){
+                fnOk();
+            }
+        });
+        $('.btn-secondary', modalBotoes).hide();
+        oModal.modal('show');
+    }
+
+    function mostraModalConfirma(sTitulo, sConteudo, fnOk, fnCancela, bDismissOk = true, bDismissCancela = true){
+        modalTitulo.html(sTitulo);
+        modalConteudo.html(sConteudo);
+        $('.btn', modalBotoes).show().off('click');
+        $('.btn-primary', modalBotoes).on('click', function(){
+            if(bDismissOk){
+                oModal.modal('hide');
+            }
+            if(fnOk){
+                fnOk();
+            }
+        });
+        $('.btn-secondary', modalBotoes).on('click', function(){
+            if(bDismissCancela){
+                oModal.modal('hide');
+            }
+            if(fnCancela){
+                fnCancela();
+            }
+        });
+        oModal.modal('show');
+    }
+
     function trataErroForm(oRetorno){
-        modalTitulo.html('Erro!');
-        modalConteudo.empty();
+        var oConteudo = $('<div>');
         if(oRetorno.message){
-            $('<p>').html(oRetorno.message).appendTo(modalConteudo);
+            $('<p>').html(oRetorno.message).appendTo(oConteudo);
         }
         if(oRetorno.errors){
-            var oUl = $('<ul>').appendTo(modalConteudo);
+            var oUl = $('<ul>').appendTo(oConteudo);
             oRetorno.errors.forEach(function(oErro){
                 $('<li>').html(oErro.message).appendTo(oUl);
             });
         }
-        oModal.modal('show');
+        mostraModalNormal('Erro!', oConteudo);
     }
 
     function iniciaForm(oForm, sUrl, sMensagem){
@@ -81,35 +134,66 @@ const ControlePagina = (function(){
                 data: formData,
                 dataType: "json",
                 contentType : "application/json"
-            }).then(function(oRetorno){
-                if(oRetorno.result == AJAX_FALHA){
-                    trataErroForm(oRetorno.msg);
-                }
-                else {
-                    modalTitulo.html('Sucesso!');
-                    modalConteudo.html(sMensagem);
-                    oModal.modal('show');
-                    $('.form-control').val('');
-                }
-            },function(e){
-                modalTitulo.html('Erro Fatal!');
-                modalConteudo.html(e.responseText);
-                oModal.modal('show');
-            });
+            }).then(getFuncaoProcessaAjaxSucesso(sMensagem), processaAjaxErro);
             e.preventDefault();
             return false;
         });
     }
 
-    function carregaRegistrosHtml(sUrl, aColunas, oAlvo){
-        return $.get(sUrl).then(function(oRegistros){
+    function getFuncaoProcessaAjaxSucesso(sMensagem){
+        return function(oRetorno){
+            if(oRetorno.result == AJAX_FALHA){
+                trataErroForm(oRetorno.msg);
+            }
+            else {
+                mostraModalNormal('Sucesso!', sMensagem);
+                $('.form-control').val('');
+            }
+        }
+    }
+
+    function executaImediato(fn){
+        if(window.requestAnimationFrame){
+            window.requestAnimationFrame(fn);
+        }
+        else {
+            setTimeout(fn, 0)
+        }
+    }
+
+    function processaAjaxErro(){
+        mostraModalNormal('Erro Fatal!', e.responseText);
+    }
+
+    function carregaRegistrosHtml(oConfig){
+        oConfig = $.extend({
+            request:    ''
+           ,chave:      []
+           ,colunas:    []
+           ,alvo:       $()
+           ,manutencao: null
+        }, oConfig);
+        return $.get(oConfig.request).then(function(oRegistros){
             if(oRegistros.result == AJAX_SUCESSO){
-                console.log(oRegistros);
                 oRegistros.registros.forEach(function(oRegistro){
-                    var oLinha = $('<tr>').appendTo(oAlvo);
-                    aColunas.forEach(function(sColuna){
+                    var oLinha = $('<tr>').appendTo(oConfig.alvo);
+                    oConfig.colunas.forEach(function(sColuna){
                         $('<td>').html(oRegistro[sColuna]).appendTo(oLinha);
                     });
+                    var oAcoes = $('<td>').appendTo(oLinha);
+                    $('<button>').html('Remover').on('click', function(sId){
+                        mostraModalConfirma('Deseja prosseguir', 'Deseja mesmo remover o registro? Os dados serão perdidos', function(){
+                            executaImediato(function(){
+                                $.get(oConfig.request + '/remove/' + sId).then(getFuncaoProcessaAjaxSucesso('Registro Removido!'), processaAjaxErro)
+                                recarregaPagina();
+                            });
+                        }, null, false);
+                    }.bind(this, oRegistro[oConfig.chave[0]])).appendTo(oAcoes);
+                    if(oConfig.manutencao){
+                        $('<button>').html('Alterar').on('click', function(sId){
+                            carregaPagina(oConfig.manutencao + '?id=' + sId);
+                        }.bind(this, oRegistro[oConfig.chave[0]])).appendTo(oAcoes);
+                    }
                 });
             }
         });
@@ -117,6 +201,7 @@ const ControlePagina = (function(){
 
     return {
          carregaPagina: carregaPagina
+        ,recarregaPagina: recarregaPagina
         ,iniciaForm: iniciaForm
         ,carregaRegistrosHtml: carregaRegistrosHtml
     };

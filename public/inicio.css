@@ -75,3 +75,8 @@ body {
     border: 0.25rem solid var(--cor-destaque-3);
     border-bottom: none;
 }
+
+.tabela-dados-acoes tr > td:last-child {
+    width: 1%;
+    white-space: nowrap;
+}

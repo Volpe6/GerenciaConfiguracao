@@ -28,8 +28,7 @@ const ControlePagina = (function(){
             ControlePagina.DATA_TABLES_L18N = oRes;
         })
         iniciaNavBar();
-        var params = new URLSearchParams(document.location.search.substring(1));
-        var page   = params.get("p");
+        var page = getParametroUrl('p');
         if(page){
             carregaPagina(page + '.html')
         }
@@ -37,6 +36,11 @@ const ControlePagina = (function(){
             carregaPagina('bemVindo.html')
         }
     });
+
+    function getParametroUrl(sParam){
+        var params = new URLSearchParams(document.location.search.substring(1));
+        return params.get(sParam);
+    }
 
     function iniciaNavBar(){
         $('.navegacao > ul > li').each(function(){
@@ -123,6 +127,12 @@ const ControlePagina = (function(){
     }
 
     function iniciaForm(oForm, sUrl, sMensagem){
+        executaImediato(function(){
+            var id = getParametroUrl('id');
+            if(id){
+                // TODO Carregar dados para preencher da url.
+            }
+        })
         oForm.submit(function(e){
             var formData = JSON.stringify(oForm.serializeArray().reduce(function(oAccum, oEl){
                 oAccum[oEl.name] = oEl.value;
